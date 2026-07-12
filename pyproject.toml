@@ -1,0 +1,26 @@
+[project]
+name = "brainbox-dashboard"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.1",
+    "psutil>=7.2.2",
+    "python-nmap>=0.7.1",
+    "textual>=8.2.8",
+]
+
+[dependency-groups]
+dev = [
+    "textual-dev>=1.8.0",
+]
+lint = [
+    "ruff>=0.15.21",
+]
+test = [
+    "pytest>=9.1.1",
+]
+
+[project.scripts]
+# bbd = "brainbox_dashboard.scripts:main"
