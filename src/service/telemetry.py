@@ -27,7 +27,7 @@ def max_fan_speed() -> int:
 
 def current_fan_speed() -> int:
     """Gets the current fan speed state."""
-    speed = 2
+    speed = 4
     # speed = Path("/sys/class/thermal/thermal_zone0/cur_state").read_text()
     return int(speed)
 

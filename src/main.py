@@ -1,9 +1,11 @@
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical
-from textual.widgets import Label, ProgressBar
+from textual.containers import Horizontal
+from textual.widgets import Label
 from typing_extensions import override
 
 from service import telemetry
+from tui.widgets.led import LED
+from tui.widgets.status import Status
 
 SNAPSHOT_MAP = telemetry.snapshot_map()
 FAN_MAX = telemetry.max_fan_speed()
@@ -12,37 +14,38 @@ FAN_MAX = telemetry.max_fan_speed()
 class BrainboxDashboard(App[None]):
     CSS_PATH: str = "main.tcss"
 
-    cpu_pb: ProgressBar = ProgressBar(total=100, show_eta=False)
-    ram_pb: ProgressBar = ProgressBar(total=100, show_eta=False)
-    temp_pb: ProgressBar = ProgressBar(total=100, show_eta=False)
-    fan_pb: ProgressBar = ProgressBar(total=FAN_MAX, show_eta=False)
+    cpu: Status = Status(icon="")
+    ram: Status = Status(icon="")
+    temp: Status = Status(icon="")
+    fan: Status = Status(icon="󰈐", total=FAN_MAX)
     snapshot: Label = Label("", id="snapshot")
 
     @override
     def compose(self) -> ComposeResult:
-        with Horizontal(id="status-bar"):
-            yield Label("")
-            yield self.cpu_pb
-            yield Label("")
-            yield self.ram_pb
-            yield Label("")
-            yield self.temp_pb
-            yield Label("󰈐")
-            yield self.fan_pb
+        with Horizontal():
+            yield self.cpu
+            yield self.ram
+            yield self.temp
+            yield self.fan
         yield self.snapshot
+        with Horizontal():
+            yield LED(status=0, id="led1")
+            yield LED(status=1, id="led2")
+            yield LED(status=2, id="led3")
+            yield LED(status=2, id="led4")
 
     def on_mount(self) -> None:
         _ = self.set_interval(0.5, self.update_values)
 
     def update_values(self) -> None:
         cpu_load = telemetry.cpu_load()
-        self.cpu_pb.update(progress=cpu_load)
+        self.cpu.update(progress=cpu_load)
         ram_load = telemetry.memory_load()
-        self.ram_pb.update(progress=ram_load)
-        temp_percentage = telemetry.cpu_temp()
-        self.temp_pb.update(progress=temp_percentage)
+        self.ram.update(progress=ram_load)
+        temperature = telemetry.cpu_temp()
+        self.temp.update(progress=temperature)
         fan_speed = telemetry.current_fan_speed()
-        self.fan_pb.update(progress=fan_speed)
+        self.fan.update(progress=fan_speed)
         self.snapshot.update(telemetry.current_snapshot_name())
 
 
