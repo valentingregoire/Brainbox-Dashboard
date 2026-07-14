@@ -29,8 +29,8 @@ include = ["src"]
 [tool.ruff]
 line-length = 80
 
-[tool.ruff.format]
-docstring-code-format = true
+# [tool.ruff.format]
+# docstring-code-format = true
 
 [project.scripts]
 bbd = "textual run src/main.py"
