@@ -1,24 +1,38 @@
+from art import text2art
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.widgets import Label
+from textual.widgets import Static
 from typing_extensions import override
 
 from service import telemetry
 from tui.widgets.led import LED
 from tui.widgets.status import Status
 
-SNAPSHOT_MAP = telemetry.snapshot_map()
 FAN_MAX = telemetry.max_fan_speed()
+SNAPSHOT_MAP = telemetry.snapshot_map()
 
 
 class BrainboxDashboard(App[None]):
     CSS_PATH: str = "main.tcss"
+    # DEFAULT_CSS: str = """
+    #     #buttons {
+    #         align: center middle;
+    #     }
+    # """
 
     cpu: Status = Status(icon="")
     ram: Status = Status(icon="")
     temp: Status = Status(icon="")
     fan: Status = Status(icon="󰈐", total=FAN_MAX)
-    snapshot: Label = Label("", id="snapshot")
+    mod_host = Status(icon="󰇅", total=1)
+    mod_ui = Status(icon="", total=1)
+    snapshot: Static = Static(id="snapshot")
+    leds: list[LED] = [
+        LED(id="led1", classes="status-0"),
+        LED(id="led2"),
+        LED(id="led3"),
+        LED(id="led4"),
+    ]
 
     @override
     def compose(self) -> ComposeResult:
@@ -27,12 +41,12 @@ class BrainboxDashboard(App[None]):
             yield self.ram
             yield self.temp
             yield self.fan
+            yield self.mod_host
+            yield self.mod_ui
         yield self.snapshot
-        with Horizontal():
-            yield LED(status=0, id="led1")
-            yield LED(status=1, id="led2")
-            yield LED(status=2, id="led3")
-            yield LED(status=2, id="led4")
+        with Horizontal(id="buttons"):
+            for led in self.leds:
+                yield led
 
     def on_mount(self) -> None:
         _ = self.set_interval(0.5, self.update_values)
@@ -46,7 +60,24 @@ class BrainboxDashboard(App[None]):
         self.temp.update(progress=temperature)
         fan_speed = telemetry.current_fan_speed()
         self.fan.update(progress=fan_speed)
-        self.snapshot.update(telemetry.current_snapshot_name())
+        self.mod_host.update(telemetry.mod_ui_service_status("modep-mod-host"))
+        self.mod_ui.update(telemetry.mod_ui_service_status("modep-mod-ui"))
+        snapshot_name: str = telemetry.current_snapshot_name()
+        self.snapshot.update(text2art(snapshot_name, font="modular"))
+        snapshot_id: int = int(
+            telemetry.current_snapshot_id(snapshot_name, SNAPSHOT_MAP)
+        )
+        current_led_id = snapshot_id % len(self.leds)
+        self.log("current led" + str(current_led_id))
+        for i, led in enumerate(self.leds):
+            if i == current_led_id:
+                # self.log(f"update {snapshot_id // len(self.leds) + 1}")
+                # self.log(f"before: {led.classes}")
+                led.update((snapshot_id // len(self.leds)) + 1)
+                # self.log(f"after: {led.classes}")
+            else:
+                led.update(0)
+                # self.log("update 0")
 
 
 if __name__ == "__main__":

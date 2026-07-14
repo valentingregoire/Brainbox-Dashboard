@@ -1,10 +1,11 @@
+import subprocess
 from pathlib import Path
 
 import httpx
 import psutil
 
-# BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
-BASE_ADDRESS: str = "http://127.0.0.1:18181"  # mod desktop
+BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
+# BASE_ADDRESS: str = "http://127.0.0.1:18181"  # mod desktop
 
 
 def cpu_temp() -> float:
@@ -20,15 +21,15 @@ def cpu_load() -> float:
 
 def max_fan_speed() -> int:
     """Gets the maximum fan speed state."""
-    speed = 4
-    # temp = Path("/sys/class/thermal/thermal_zone0/temp/max_state").read_text()
+    # speed = 4
+    speed = Path("/sys/class/thermal/thermal_zone0/temp/max_state").read_text()
     return int(speed)
 
 
 def current_fan_speed() -> int:
     """Gets the current fan speed state."""
-    speed = 4
-    # speed = Path("/sys/class/thermal/thermal_zone0/cur_state").read_text()
+    # speed = 4
+    speed = Path("/sys/class/thermal/thermal_zone0/cur_state").read_text()
     return int(speed)
 
 
@@ -36,6 +37,16 @@ def memory_load() -> float:
     """Gets the memory load percentage."""
     memory = psutil.virtual_memory()
     return memory.percent
+
+
+def mod_ui_service_status(service: str) -> int:
+    """Gets the status of the mod-ui service."""
+    result = subprocess.run(
+        ["systemctl", "--user", "is-active", service],
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    return 1 if result == "active" else 0
 
 
 def snapshot_map() -> dict[str, str]:
@@ -51,9 +62,11 @@ def current_snapshot_name() -> str:
     response = httpx.get(f"{BASE_ADDRESS}/snapshot/current")
     if response.is_success:
         return response.text
-    return "Unknown"
+    return "Error"
 
 
-def current_snapshot_id(snapshot_name: str, snapshot_map: dict[str, str]) -> str | None:
+def current_snapshot_id(
+    snapshot_name: str, snapshot_map: dict[str, str]
+) -> str:
     """Gets the id of the current snapshot."""
-    return next((k for k, v in snapshot_map.items() if v == snapshot_name), None)
+    return next((k for k, v in snapshot_map.items() if v == snapshot_name), "0")
