@@ -80,6 +80,10 @@ class BrainboxDashboard(App[None]):
                 # self.log("update 0")
 
 
-if __name__ == "__main__":
+def run() -> None:
     app = BrainboxDashboard()
     app.run()
+
+
+if __name__ == "__main__":
+    run()
