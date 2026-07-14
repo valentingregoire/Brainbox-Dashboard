@@ -22,14 +22,14 @@ def cpu_load() -> float:
 def max_fan_speed() -> int:
     """Gets the maximum fan speed state."""
     # speed = 4
-    speed = Path("/sys/class/thermal/thermal_zone0/temp/max_state").read_text()
+    speed = Path("/sys/class/thermal/cooling_device0/max_state").read_text()
     return int(speed)
 
 
 def current_fan_speed() -> int:
     """Gets the current fan speed state."""
     # speed = 4
-    speed = Path("/sys/class/thermal/thermal_zone0/cur_state").read_text()
+    speed = Path("/sys/class/thermal/cooling_device0/cur_state").read_text()
     return int(speed)
 
 
