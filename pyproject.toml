@@ -33,5 +33,4 @@ line-length = 80
 docstring-code-format = true
 
 [project.scripts]
-bbd = textual run src/main.py
-# bbd = "brainbox_dashboard.scripts:main"
+bbd = "textual run src/main.py"
