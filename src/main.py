@@ -13,12 +13,18 @@ SNAPSHOT_MAP = telemetry.snapshot_map()
 
 
 class BrainboxDashboard(App[None]):
-    CSS_PATH: str = "main.tcss"
-    # DEFAULT_CSS: str = """
-    #     #buttons {
-    #         align: center middle;
-    #     }
-    # """
+    # CSS_PATH: str = "main.tcss"
+    DEFAULT_CSS = """
+        #snapshot {
+            width: 100%;
+            align: center middle;
+            text-align: center;
+        }
+
+        #buttons {
+            align: center middle;
+        }
+    """
 
     cpu: Status = Status(icon="")
     ram: Status = Status(icon="")

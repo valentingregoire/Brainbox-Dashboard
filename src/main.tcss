@@ -1,9 +1,0 @@
-#snapshot {
-    width: 100%;
-    align: center middle;
-    text-align: center;
-}
-
-#buttons {
-    align: center middle;
-}

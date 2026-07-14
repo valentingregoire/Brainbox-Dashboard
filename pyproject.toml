@@ -1,6 +1,6 @@
 [project]
 name = "brainbox-dashboard"
-version = "0.0.6"
+version = "0.0.8"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -32,8 +32,8 @@ line-length = 80
 [tool.ruff.format]
 docstring-code-format = true
 
-[tool.setuptools.package-data]
-bbd = ["**/*.tcss"]
+# [tool.setuptools.package-data]
+# bbd = ["**/*.tcss"]
 
 [project.scripts]
 bbd = "main:run"
