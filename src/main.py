@@ -5,6 +5,7 @@ from textual.widgets import Static
 from typing_extensions import override
 
 from service import telemetry
+from tui.widgets.inline_button import InlineButton
 from tui.widgets.led import LED
 from tui.widgets.status import Status
 
@@ -26,12 +27,13 @@ class BrainboxDashboard(App[None]):
         }
     """
 
+    close_btn: InlineButton = InlineButton("")
     cpu: Status = Status(icon="")
     ram: Status = Status(icon="")
     temp: Status = Status(icon="")
     fan: Status = Status(icon="󰈐", total=FAN_MAX)
-    mod_host = Status(icon="󰇅", total=1)
-    mod_ui = Status(icon="", total=1)
+    mod_host: Status = Status(icon="󰇅", total=1)
+    mod_ui: Status = Status(icon="", total=1)
     snapshot: Static = Static(id="snapshot")
     leds: list[LED] = [
         LED(id="led1", classes="status-0"),
@@ -42,13 +44,14 @@ class BrainboxDashboard(App[None]):
 
     @override
     def compose(self) -> ComposeResult:
-        with Horizontal():
+        with Horizontal(id="status-bar"):
             yield self.cpu
             yield self.ram
             yield self.temp
             yield self.fan
             yield self.mod_host
             yield self.mod_ui
+            yield self.close_btn
         yield self.snapshot
         with Horizontal(id="buttons"):
             for led in self.leds:
@@ -56,6 +59,9 @@ class BrainboxDashboard(App[None]):
 
     def on_mount(self) -> None:
         _ = self.set_interval(0.5, self.update_values)
+
+    def on_inline_button_clicked(self, _: InlineButton.Clicked) -> None:
+        self.exit()
 
     def update_values(self) -> None:
         cpu_load = telemetry.cpu_load()
@@ -69,7 +75,7 @@ class BrainboxDashboard(App[None]):
         self.mod_host.update(telemetry.mod_ui_service_status("modep-mod-host"))
         self.mod_ui.update(telemetry.mod_ui_service_status("modep-mod-ui"))
         snapshot_name: str = telemetry.current_snapshot_name()
-        self.snapshot.update(text2art(snapshot_name, font="modular"))
+        self.snapshot.update(text2art(snapshot_name, font="big"))
         snapshot_id: int = int(
             telemetry.current_snapshot_id(snapshot_name, SNAPSHOT_MAP)
         )

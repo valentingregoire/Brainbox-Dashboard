@@ -10,6 +10,7 @@ BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
 
 def cpu_temp() -> float:
     """Reads the temperature and returns it as a float with 1 decimal."""
+    # return 20
     temp = Path("/sys/class/thermal/thermal_zone0/temp").read_text()
     return int(int(temp) / 100) / 10
 
@@ -21,14 +22,14 @@ def cpu_load() -> float:
 
 def max_fan_speed() -> int:
     """Gets the maximum fan speed state."""
-    # speed = 4
+    # return 4
     speed = Path("/sys/class/thermal/cooling_device0/max_state").read_text()
     return int(speed)
 
 
 def current_fan_speed() -> int:
     """Gets the current fan speed state."""
-    # speed = 4
+    # return 3
     speed = Path("/sys/class/thermal/cooling_device0/cur_state").read_text()
     return int(speed)
 
