@@ -8,8 +8,8 @@ import psutil
 MAC_FOOTSWITCH: str = "a4:97:33:7e:ff:d4"
 MAC_TABLET: str = "c8:b2:9b:b5:4a:c8"
 MAC_LAPTOP: str = "88:a2:9e:0c:46:76"
-# BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
-BASE_ADDRESS: str = "http://127.0.0.1:18181"  # mod desktop
+BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
+# BASE_ADDRESS: str = "http://127.0.0.1:18181"  # mod desktop
 
 
 def cpu_temp() -> float:
