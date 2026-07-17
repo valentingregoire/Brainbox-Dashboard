@@ -3,25 +3,30 @@ from textual.reactive import reactive
 from textual.widget import Widget
 from typing_extensions import override
 
+from . import CLR_OK, CLR_TEXT_OK, CLR_TEXT_WARN, CLR_WARN
+
 
 class LED(Widget):
-    # CSS_PATH: str = "led.tcss"
-    DEFAULT_CSS: str = """
-        LED {
+    DEFAULT_CSS: str = f"""
+        LED {{
             width: 7;
             height: 3;
             margin: 0 3;
             padding: 1 3;
-        }
-        LED.status-0 {
+            text-style: bold;
+        }}
+        LED.status-0 {{
             background: #A0A0A0;
-        }
-        LED.status-1 {
-            background: #27F071;
-        }
-        LED.status-2 {
-            background: #F0A027;
-        }
+        }}
+        LED.status-1 {{
+            background: {CLR_OK};
+            color: {CLR_TEXT_OK};
+
+        }}
+        LED.status-2 {{
+            background: {CLR_WARN};
+            color: {CLR_TEXT_WARN};
+        }}
     """
 
     status: reactive[int] = reactive(0)

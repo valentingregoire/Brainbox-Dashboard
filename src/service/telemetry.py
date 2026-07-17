@@ -1,22 +1,27 @@
+import json
 import subprocess
 from pathlib import Path
 
 import httpx
 import psutil
 
-BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
-# BASE_ADDRESS: str = "http://127.0.0.1:18181"  # mod desktop
+MAC_FOOTSWITCH: str = "a4:97:33:7e:ff:d4"
+MAC_TABLET: str = "c8:b2:9b:b5:4a:c8"
+MAC_LAPTOP: str = "88:a2:9e:0c:46:76"
+# BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
+BASE_ADDRESS: str = "http://127.0.0.1:18181"  # mod desktop
 
 
 def cpu_temp() -> float:
     """Reads the temperature and returns it as a float with 1 decimal."""
-    # return 20
+    # return 20.0
     temp = Path("/sys/class/thermal/thermal_zone0/temp").read_text()
     return int(int(temp) / 100) / 10
 
 
 def cpu_load() -> float:
     """Reads the CPU load percentage and returns it as a float."""
+    # return 80.0
     return psutil.cpu_percent(interval=0.2)
 
 
@@ -36,18 +41,37 @@ def current_fan_speed() -> int:
 
 def memory_load() -> float:
     """Gets the memory load percentage."""
+    # return 22.5
     memory = psutil.virtual_memory()
     return memory.percent
 
 
-def mod_ui_service_status(service: str) -> int:
+def mod_service_status(service: str) -> int:
     """Gets the status of the mod-ui service."""
     result = subprocess.run(
         ["systemctl", "--user", "is-active", service],
         capture_output=True,
         text=True,
     ).stdout.strip()
-    return 1 if result == "active" else 0
+    if result == "active":
+        return 2
+    elif result == "stale":
+        return 1
+    return 0
+
+
+def device_status(mac: str) -> bool:
+    result = subprocess.run(
+        ["ip", "-j", "neigh"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    devices: list[dict[str, str | list[str]]] = json.loads(result)
+    for device in devices:
+        if device["lladdr"] == mac:
+            return "REACHABLE" in device["state"]
+    return False
 
 
 def snapshot_map() -> dict[str, str]:
