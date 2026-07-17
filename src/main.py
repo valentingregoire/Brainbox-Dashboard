@@ -4,10 +4,10 @@ from textual.containers import Horizontal
 from textual.widgets import Static
 from typing_extensions import override
 
-from .service import telemetry
-from .tui.widgets.inline_button import InlineButton
-from .tui.widgets.led import LED
-from .tui.widgets.status import Status
+from service import telemetry
+from tui.widgets.inline_button import InlineButton
+from tui.widgets.led import LED
+from tui.widgets.status import Status
 
 FAN_MAX = telemetry.max_fan_speed()
 SNAPSHOT_MAP = telemetry.snapshot_map()
