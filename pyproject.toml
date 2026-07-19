@@ -11,6 +11,11 @@ dependencies = [
     "python-nmap>=0.7.1",
     "textual>=8.2.8",
 ]
+# executionEnvironments = [
+#     {
+#         "root": "src"
+#     }
+# ]
 
 [dependency-groups]
 dev = [
@@ -23,14 +28,21 @@ test = [
     "pytest>=9.1.1",
 ]
 
-[tool.pyright]
-include = ["src"]
+# [tool.pyright]
+# include = ["src"]
 
 [tool.ruff]
 line-length = 80
 
 [tool.ruff.format]
 docstring-code-format = true
+
+[tool.ty.environment]
+extra-paths = ["src"]
+# python-platform = "linux"
+
+[tool.basedpyright]
+extraPaths = ["src"]
 
 # [tool.setuptools.package-data]
 # bbd = ["**/*.tcss"]

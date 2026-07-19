@@ -4,18 +4,24 @@ from textual.containers import Horizontal
 from textual.widgets import Static
 from typing_extensions import override
 
-from service import telemetry
+# from service import telemetry
+from service import telemetry_mock as telemetry
 from tui.widgets.inline_button import InlineButton
 from tui.widgets.led import LED
 from tui.widgets.status import Status
 
-FAN_MAX = telemetry.max_fan_speed()
+MAX_FAN = telemetry.max_fan_speed()
+MAX_VOLUME = telemetry.max_volume()
 SNAPSHOT_MAP = telemetry.snapshot_map()
 
 
 class BrainboxDashboard(App[None]):
     # CSS_PATH: str = "main.tcss"
     DEFAULT_CSS = """
+        #spacer {
+            width: 1fr;
+        }
+
         #snapshot {
             width: 100%;
             align: center middle;
@@ -28,16 +34,17 @@ class BrainboxDashboard(App[None]):
         }
     """
 
-    close_btn: InlineButton = InlineButton("")
     temp: Status = Status(icon="")
     cpu: Status = Status(icon="")
     ram: Status = Status(icon="")
-    fan: Status = Status(icon="󰈐", total=FAN_MAX)
+    fan: Status = Status(icon="󰈐", total=MAX_FAN)
     mod_host: Status = Status(icon="󰇅", boolean=True)
     mod_ui: Status = Status(icon="", boolean=True)
     footswitch: Status = Status(icon="󰽒", total=2, show_pb=False)
     tablet: Status = Status(icon="", total=2, show_pb=False)
     laptop: Status = Status(icon="", total=2, show_pb=False)
+    volume: Status = Status(icon="", total=MAX_VOLUME)
+    close_btn: InlineButton = InlineButton("")
     snapshot: Static = Static(id="snapshot")
     leds: list[LED] = [
         LED(id="led1", classes="status-0"),
@@ -58,6 +65,9 @@ class BrainboxDashboard(App[None]):
             yield self.footswitch
             yield self.tablet
             yield self.laptop
+            yield Static(id="spacer")
+            with InlineButton(id="btn_volume"):
+                yield self.volume
             yield self.close_btn
         yield self.snapshot
         with Horizontal(id="buttons"):
@@ -77,7 +87,7 @@ class BrainboxDashboard(App[None]):
         self.ram.update(progress=ram_load)
         temperature = telemetry.cpu_temp()
         self.temp.update(progress=temperature)
-        fan_speed = telemetry.current_fan_speed()
+        fan_speed = telemetry.fan_speed()
         self.fan.update(progress=fan_speed)
         self.mod_host.update(telemetry.mod_service_status("modep-mod-host"))
         self.mod_ui.update(telemetry.mod_service_status("modep-mod-ui"))
@@ -89,10 +99,11 @@ class BrainboxDashboard(App[None]):
         self.footswitch.update(status_footswitch)
         self.tablet.update(status_tablet)
         self.laptop.update(status_laptop)
-        snapshot_name: str = telemetry.current_snapshot_name()
+        self.volume.update(progress=telemetry.volume())
+        snapshot_name: str = telemetry.snapshot_name()
         self.snapshot.update(text2art(snapshot_name, font="big"))
         snapshot_id: int = int(
-            telemetry.current_snapshot_id(snapshot_name, SNAPSHOT_MAP)
+            telemetry.snapshot_id(snapshot_name, SNAPSHOT_MAP)
         )
         current_led_id = snapshot_id % len(self.leds)
         self.log("current led" + str(current_led_id))

@@ -62,7 +62,7 @@ class InlineVerticalProgressBar(Static):
             _ = self.add_class("nok")
         elif progress >= 5 / 8:
             progress_str = self._5_8
-            _ = self.add_class("nok")
+            _ = self.add_class("warn")
         elif progress >= 4 / 8:
             progress_str = self._4_8
             _ = self.add_class("warn")
