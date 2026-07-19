@@ -36,13 +36,19 @@ class InlineVerticalProgressBar(Static):
 
     progress: reactive[float] = reactive(0)
     total: reactive[float] = reactive(1)
+    style: bool = True
 
     def __init__(
-        self, progress: float = 0, total: float = 1, id: str | None = None
+        self,
+        progress: float = 0,
+        total: float = 1,
+        id: str | None = None,
+        style: bool = True,
     ) -> None:
         super().__init__(id=id)
         self.progress = progress
         self.total = total
+        self.style = style
 
     @override
     def render(self) -> RenderResult:
@@ -53,28 +59,37 @@ class InlineVerticalProgressBar(Static):
         progress_str = " "
         if progress == 1:
             progress_str = self._8_8
-            _ = self.add_class("nok")
+            if self.style:
+                _ = self.add_class("nok")
         elif progress >= 7 / 8:
             progress_str = self._7_8
-            _ = self.add_class("nok")
+            if self.style:
+                _ = self.add_class("nok")
         elif progress >= 6 / 8:
             progress_str = self._6_8
-            _ = self.add_class("nok")
+            if self.style:
+                _ = self.add_class("nok")
         elif progress >= 5 / 8:
             progress_str = self._5_8
-            _ = self.add_class("warn")
+            if self.style:
+                _ = self.add_class("warn")
         elif progress >= 4 / 8:
             progress_str = self._4_8
-            _ = self.add_class("warn")
+            if self.style:
+                _ = self.add_class("warn")
         elif progress >= 3 / 8:
             progress_str = self._3_8
-            _ = self.add_class("ok")
+            if self.style:
+                _ = self.add_class("ok")
         elif progress >= 2 / 8:
             progress_str = self._2_8
-            _ = self.add_class("ok")
+            if self.style:
+                _ = self.add_class("ok")
         elif progress >= 1 / 8:
             progress_str = self._1_8
-            _ = self.add_class("ok")
+            if self.style:
+                _ = self.add_class("ok")
         else:
-            _ = self.add_class("ok")
+            if self.style:
+                _ = self.add_class("ok")
         return progress_str * 2

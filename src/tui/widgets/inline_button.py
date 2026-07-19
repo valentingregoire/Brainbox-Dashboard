@@ -14,8 +14,9 @@ class InlineButton(Static):
         width: 5;
         height: 1;
         # margin: 0 1;
-        padding: 0 1;
+        # padding: 0 1;
         text-align: center;
+        border-left: solid red;
     }
     """
 

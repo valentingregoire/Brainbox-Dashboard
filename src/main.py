@@ -9,6 +9,7 @@ from service import telemetry_mock as telemetry
 from tui.widgets.inline_button import InlineButton
 from tui.widgets.led import LED
 from tui.widgets.status import Status
+from tui.widgets.volume_control import VolumeControl
 
 MAX_FAN = telemetry.max_fan_speed()
 MAX_VOLUME = telemetry.max_volume()
@@ -43,7 +44,8 @@ class BrainboxDashboard(App[None]):
     footswitch: Status = Status(icon="󰽒", total=2, show_pb=False)
     tablet: Status = Status(icon="", total=2, show_pb=False)
     laptop: Status = Status(icon="", total=2, show_pb=False)
-    volume: Status = Status(icon="", total=MAX_VOLUME)
+    # volume: Status = Status(icon="", total=MAX_VOLUME)
+    volume: VolumeControl = VolumeControl(MAX_VOLUME)
     close_btn: InlineButton = InlineButton("")
     snapshot: Static = Static(id="snapshot")
     leds: list[LED] = [
@@ -99,7 +101,7 @@ class BrainboxDashboard(App[None]):
         self.footswitch.update(status_footswitch)
         self.tablet.update(status_tablet)
         self.laptop.update(status_laptop)
-        self.volume.update(progress=telemetry.volume())
+        self.volume.progress = telemetry.volume()
         snapshot_name: str = telemetry.snapshot_name()
         self.snapshot.update(text2art(snapshot_name, font="big"))
         snapshot_id: int = int(
