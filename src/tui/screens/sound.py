@@ -7,7 +7,9 @@ from textual.widgets import Static
 from textual_slider import Slider
 from typing_extensions import override
 
-from service import telemetry_mock as telemetry
+from service import telemetry
+
+# from service import telemetry_mock as telemetry
 from tui.widgets.inline_button import InlineButton
 from tui.widgets.volume_control import VolumeControl
 
