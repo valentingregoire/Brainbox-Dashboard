@@ -48,17 +48,7 @@ def memory_load() -> float:
 def max_volume() -> int:
     """Gets the max volume."""
     max = _cmd(
-        [
-            "amixer",
-            "-c",
-            "2",
-            "cget",
-            "name='Digital Playback Volume'",
-            "|",
-            "grep",
-            "-oP",
-            "'max=\\K[0-9]+'",
-        ]
+        "amixer -c 2 cget name='Digital Playback Volume' | grep -oP 'max=\\K[0-9]+' | tail -1"
     )
     return int(max)
 
@@ -66,41 +56,14 @@ def max_volume() -> int:
 def get_volume() -> int:
     """Gets the current volume."""
     volume = _cmd(
-        [
-            "amixer",
-            "-c",
-            "2",
-            "cget",
-            "name='Digital Playback Volume'",
-            "|",
-            "grep",
-            "-oP",
-            "'values=\\K[0-9]+'",
-            "|",
-            "tail",
-            "-1",
-        ]
+        "amixer -c 2 cget name='Digital Playback Volume' | grep -oP 'values=\\K[0-9]+' | tail -1"
     )
     return int(volume)
 
 
 def set_volume(volume: int) -> bool:
     result = _cmd(
-        [
-            "amixer",
-            "-c",
-            "2",
-            "cset",
-            "name='Digital Playback Volume'",
-            str(volume),
-            "|",
-            "grep",
-            "-oP",
-            "'values=\\K[0-9]+'",
-            "|",
-            "tail",
-            "-1",
-        ]
+        f"amixer -c 2 cset name='Digital Playback Volume' {str(volume)} | grep -oP 'values=\\K[0-9]+' | tail -1"
     )
     return int(result) == volume
 
@@ -145,10 +108,11 @@ def snapshot_id(snapshot_name: str, snapshot_map: dict[str, str]) -> str:
     return next((k for k, v in snapshot_map.items() if v == snapshot_name), "0")
 
 
-def _cmd(cmd: list[str]) -> str:
+def _cmd(cmd: list[str] | str) -> str:
     """Runs a command and returns the result."""
     result = subprocess.run(
         cmd,
+        shell=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
