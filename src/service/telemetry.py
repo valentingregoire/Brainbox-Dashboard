@@ -63,7 +63,7 @@ def max_volume() -> int:
     return int(max)
 
 
-def volume() -> int:
+def get_volume() -> int:
     """Gets the current volume."""
     volume = _cmd(
         [
@@ -82,6 +82,27 @@ def volume() -> int:
         ]
     )
     return int(volume)
+
+
+def set_volume(volume: int) -> bool:
+    result = _cmd(
+        [
+            "amixer",
+            "-c",
+            "2",
+            "cset",
+            "name='Digital Playback Volume'",
+            str(volume),
+            "|",
+            "grep",
+            "-oP",
+            "'values=\\K[0-9]+'",
+            "|",
+            "tail",
+            "-1",
+        ]
+    )
+    return int(result) == volume
 
 
 def mod_service_status(service: str) -> int:

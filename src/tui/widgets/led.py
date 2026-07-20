@@ -27,7 +27,7 @@ class LED(Widget):
             background: {CLR_WARN};
             color: {CLR_TEXT_WARN};
         }}
-    """
+    """  # ty:ignore[invalid-attribute-override]
 
     status: reactive[int] = reactive(0)
 

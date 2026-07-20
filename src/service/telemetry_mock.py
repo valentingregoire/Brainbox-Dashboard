@@ -3,6 +3,7 @@ from typing_extensions import override
 from .telemetry import *
 
 BASE_ADDRESS = "http://127.0.0.1:18181"  # mod desktop
+volume: int = 107
 
 
 @override
@@ -11,8 +12,15 @@ def max_volume() -> int:
 
 
 @override
-def volume() -> int:
-    return 145
+def get_volume() -> int:
+    return volume
+
+
+@override
+def set_volume(new_volume: int) -> bool:
+    global volume
+    volume = new_volume
+    return True
 
 
 @override

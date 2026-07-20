@@ -24,7 +24,7 @@ class Status(Horizontal):
     Status > Label.nok {{
         color: {CLR_NOK};
     }}
-    """
+    """  # ty:ignore[invalid-attribute-override]
 
     icon: str = ""
     progress: reactive[int | float | bool] = reactive(0)

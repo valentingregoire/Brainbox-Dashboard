@@ -32,7 +32,7 @@ class InlineVerticalProgressBar(Static):
     InlineVerticalProgressBar.nok {{
         color: {CLR_NOK}
     }}
-    """
+    """  # ty:ignore[invalid-attribute-override]
 
     progress: reactive[float] = reactive(0)
     total: reactive[float] = reactive(1)

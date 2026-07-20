@@ -6,19 +6,23 @@ from typing_extensions import override
 
 class InlineButton(Static):
     class Clicked(Message):
-        def __init__(self) -> None:
+        initiator: str | None
+
+        def __init__(self, initiator: str | None = None) -> None:
             super().__init__()
+            self.initiator = initiator
 
     DEFAULT_CSS: str = """
     InlineButton {
-        width: 5;
+        width: 4;
         height: 1;
         # margin: 0 1;
         # padding: 0 1;
         text-align: center;
-        border-left: solid red;
+        # border-left: solid red;
+        # border-right: solid red;
     }
-    """
+    """  # ty:ignore[invalid-attribute-override]
 
     @override
     def __init__(self, label: str | None = None, id: str | None = None) -> None:
@@ -30,4 +34,4 @@ class InlineButton(Static):
         return self.label or ""
 
     def on_click(self) -> None:
-        _ = self.post_message(self.Clicked())
+        _ = self.post_message(self.Clicked(self.id))

@@ -1,11 +1,15 @@
+from typing import Any, Callable
+
 from art import text2art
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
+from textual.screen import Screen
 from textual.widgets import Static
 from typing_extensions import override
 
 # from service import telemetry
 from service import telemetry_mock as telemetry
+from tui.screens.sound import SoundScreen
 from tui.widgets.inline_button import InlineButton
 from tui.widgets.led import LED
 from tui.widgets.status import Status
@@ -18,7 +22,7 @@ SNAPSHOT_MAP = telemetry.snapshot_map()
 
 class BrainboxDashboard(App[None]):
     # CSS_PATH: str = "main.tcss"
-    DEFAULT_CSS = """
+    DEFAULT_CSS: str = """
         #spacer {
             width: 1fr;
         }
@@ -33,7 +37,9 @@ class BrainboxDashboard(App[None]):
         #buttons {
             align: center middle;
         }
-    """
+    """  # ty:ignore[invalid-attribute-override]
+
+    SCREENS: dict[str, Callable[[], Screen[Any]]] = {"sound": SoundScreen}
 
     temp: Status = Status(icon="")
     cpu: Status = Status(icon="")
@@ -46,7 +52,7 @@ class BrainboxDashboard(App[None]):
     laptop: Status = Status(icon="", total=2, show_pb=False)
     # volume: Status = Status(icon="", total=MAX_VOLUME)
     volume: VolumeControl = VolumeControl(MAX_VOLUME)
-    close_btn: InlineButton = InlineButton("")
+    close_btn: InlineButton = InlineButton("", id="btn_close")
     snapshot: Static = Static(id="snapshot")
     leds: list[LED] = [
         LED(id="led1", classes="status-0"),
@@ -79,9 +85,6 @@ class BrainboxDashboard(App[None]):
     def on_mount(self) -> None:
         _ = self.set_interval(0.5, self.update_values)
 
-    def on_inline_button_clicked(self, _: InlineButton.Clicked) -> None:
-        self.exit()
-
     def update_values(self) -> None:
         cpu_load = telemetry.cpu_load()
         self.cpu.update(progress=cpu_load)
@@ -101,19 +104,28 @@ class BrainboxDashboard(App[None]):
         self.footswitch.update(status_footswitch)
         self.tablet.update(status_tablet)
         self.laptop.update(status_laptop)
-        self.volume.progress = telemetry.volume()
+        self.volume.volume = telemetry.get_volume()
         snapshot_name: str = telemetry.snapshot_name()
-        self.snapshot.update(text2art(snapshot_name, font="big"))
+        self.snapshot.update(str(text2art(snapshot_name, font="big")))
         snapshot_id: int = int(
             telemetry.snapshot_id(snapshot_name, SNAPSHOT_MAP)
         )
         current_led_id = snapshot_id % len(self.leds)
-        self.log("current led" + str(current_led_id))
         for i, led in enumerate(self.leds):
             if i == current_led_id:
                 led.update((snapshot_id // len(self.leds)) + 1)
             else:
                 led.update(0)
+
+    def on_inline_button_clicked(self, message: InlineButton.Clicked) -> None:  # noqa: F811
+        if message.initiator == "btn_close":
+            self.exit(message="I quit!")
+        elif message.initiator == "btn_volume":
+            _ = self.push_screen("sound")
+
+    def on_volume_changed(self, message: VolumeControl.VolumeChanged):
+        self.volume.volume = message.value
+        _ = telemetry.set_volume(message.value)
 
 
 def run() -> None:
