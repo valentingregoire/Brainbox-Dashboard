@@ -70,7 +70,7 @@ def set_volume(volume: int) -> bool:
 
 def mod_service_status(service: str) -> int:
     """Gets the status of the mod-ui service."""
-    status = _cmd(["systemctl", "--user", "is-active", service])
+    status = _cmd(f"systemctl --user is-active {service}")
     if status == "active":
         return 2
     elif status == "stale":
@@ -79,7 +79,7 @@ def mod_service_status(service: str) -> int:
 
 
 def device_status(mac: str) -> bool:
-    status = _cmd(["ip", "-j", "neigh"])
+    status = _cmd("ip -j neigh")
     devices: list[dict[str, str | list[str]]] = json.loads(status)
     for device in devices:
         if device["lladdr"] == mac:
