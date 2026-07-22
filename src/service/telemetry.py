@@ -83,14 +83,14 @@ class Telemetry:
 
     def snapshot_map(self) -> dict[str, str]:
         """Gets the snapshot numbers and their corresponding names."""
-        response = httpx.get(f"{BASE_ADDRESS}/snapshot/list")
+        response = httpx.get(f"{self.BASE_ADDRESS}/snapshot/list")
         if response.is_success:
             return response.json()
         return {}
 
     def snapshot_name(self) -> str:
         """Gets the name of the current snapshot."""
-        response = httpx.get(f"{BASE_ADDRESS}/snapshot/current")
+        response = httpx.get(f"{self.BASE_ADDRESS}/snapshot/current")
         if response.is_success:
             return response.text
         return "Error"
