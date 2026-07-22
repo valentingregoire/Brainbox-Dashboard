@@ -5,14 +5,14 @@ from textual.widget import Widget
 from typing_extensions import override
 
 
+class VolumeChanged(Message):
+    def __init__(self, new_volume: int, old_volume: int) -> None:
+        super().__init__()
+        self.new_volume: int = new_volume
+        self.old_volume: int = old_volume
+
+
 class VolumeControl(Widget):
-    class VolumeChanged(Message):
-        volume: int = 0
-
-        def __init__(self, volume: int) -> None:
-            super().__init__()
-            self.value: int = volume
-
     DEFAULT_CSS: str = """
     VolumeControl {
         width: 3;
@@ -20,7 +20,7 @@ class VolumeControl(Widget):
         # margin-right: 3;
         text-align: center;
     }
-    """
+    """  # ty:ignore[invalid-attribute-override]
 
     max: int
     volume: reactive[int] = reactive(0)
@@ -32,11 +32,12 @@ class VolumeControl(Widget):
 
     @override
     def render(self) -> RenderResult:
-        if self.volume == 0:
+        volume_percent: int = round(self.volume / self.max * 100)
+        if volume_percent == 0:
             return "󰝟 "
-        elif self.volume < 33:
+        elif volume_percent < 33:
             return "󰕿 "
-        elif self.volume < 66:
+        elif volume_percent < 66:
             return "󰖀 "
         else:
             return "󰕾 "

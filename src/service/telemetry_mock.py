@@ -1,52 +1,72 @@
 from typing_extensions import override
 
-from .telemetry import *
-
-BASE_ADDRESS = "http://127.0.0.1:18181"  # mod desktop
-volume: int = 107
+from service.telemetry import Telemetry
 
 
-@override
-def max_volume() -> int:
-    return 207
+class TelemetryMock(Telemetry):
+    current_volume: int = 107
 
+    @override
+    def cpu_temp(self) -> float:
+        """Reads the temperature and returns it as a float with 1 decimal."""
+        return 60.0
 
-@override
-def get_volume() -> int:
-    return volume
+    @override
+    def cpu_load(self) -> float:
+        """Reads the CPU load percentage and returns it as a float."""
+        return 80.0
 
+    @override
+    def max_fan_speed(self) -> int:
+        """Gets the maximum fan speed state."""
+        return 4
 
-@override
-def set_volume(new_volume: int) -> bool:
-    global volume
-    volume = new_volume
-    return True
+    @override
+    def fan_speed(self) -> int:
+        """Gets the current fan speed state."""
+        return 3
 
+    @override
+    def memory_load(self) -> float:
+        """Gets the memory load percentage."""
+        return 22.5
 
-@override
-def mod_service_status(service: str) -> int:
-    return 2
+    @override
+    def _max_volume(self) -> int:
+        """Gets the max volume."""
+        return 207
 
+    @override
+    def get_volume(self) -> int:
+        """Gets the current volume."""
+        return self.current_volume
 
-@override
-def snapshot_map() -> dict[str, str]:
-    return {
-        "0": "zero",
-        "1": "one",
-        "2": "two",
-        "3": "three",
-        "4": "four",
-        "5": "five",
-        "6": "six",
-        "7": "seven",
-    }
+    @override
+    def set_volume(self, volume: int) -> bool:
+        self.current_volume = volume
+        return True
 
+    @override
+    def mod_service_status(self, service: str) -> int:
+        return 2
 
-@override
-def snapshot_name() -> str:
-    return "three"
+    @override
+    def snapshot_map(self) -> dict[str, str]:
+        return {
+            "0": "zero",
+            "1": "one",
+            "2": "two",
+            "3": "three",
+            "4": "four",
+            "5": "five",
+            "6": "six",
+            "7": "seven",
+        }
 
+    @override
+    def snapshot_name(self) -> str:
+        return "three"
 
-@override
-def device_status(mac: str) -> bool:
-    return True
+    @override
+    def device_status(self, mac: str) -> bool:
+        return True
