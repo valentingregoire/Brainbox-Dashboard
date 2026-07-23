@@ -17,7 +17,7 @@ jobs:
           # uv venv
           # source .venv/bin/activate
           # uv sync --all-groups
-          uv sync all-groups --no-group dev
+          uv sync --all-groups --no-group dev
       - name: Lint
         run: uv run ruff check
       - name: Type Check
