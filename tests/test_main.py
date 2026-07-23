@@ -75,15 +75,10 @@ class TestStatusBar:
             assert app.query_one(
                 "#mod_ui", Status
             ).progress == telemetry.mod_service_status("modep-mod-ui")
-            assert app.query_one(
-                "#footswitch", Status
-            ).progress == telemetry.device_status(telemetry.MAC_FOOTSWITCH)
-            assert app.query_one(
-                "#tablet", Status
-            ).progress == telemetry.device_status(telemetry.MAC_TABLET)
-            assert app.query_one(
-                "#laptop", Status
-            ).progress == telemetry.device_status(telemetry.MAC_LAPTOP)
+            assert app.query_one("#footswitch", Status).progress
+            assert app.query_one("#tablet", Status).progress
+            assert app.query_one("#laptop", Status).progress
+            assert not app.query_one("#intruder", Status).progress
             assert (
                 app.query_one("#volume_control", VolumeControl).volume
                 == telemetry.get_volume()

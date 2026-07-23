@@ -57,7 +57,7 @@ class Status(Horizontal):
             yield InlineVerticalProgressBar(self.progress, self.total, id="pb")
             yield Label(id="label")
 
-    def update(self, progress: int | float) -> None:
+    def update(self, progress: int | float | bool) -> None:
         """Updates the status based on the progress."""
         self.progress = progress
         icon: Label = self.query_one("#icon", Label)

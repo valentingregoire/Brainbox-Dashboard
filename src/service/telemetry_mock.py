@@ -54,6 +54,15 @@ class TelemetryMock(Telemetry):
         return 2
 
     @override
+    def connected_hosts(self) -> list[str]:
+        return [
+            self.HOSTNAME_FOOTSWITCH,
+            self.HOSTNAME_LAPTOP,
+            self.HOSTNAME_TABLET,
+            "intruder",
+        ]
+
+    @override
     def _snapshot_map(self) -> dict[str, str]:
         return {
             "0": "zero",
@@ -69,7 +78,3 @@ class TelemetryMock(Telemetry):
     @override
     def snapshot_name(self) -> str:
         return self.current_snapshot_name
-
-    @override
-    def device_status(self, mac: str) -> bool:
-        return True

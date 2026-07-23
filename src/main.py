@@ -58,6 +58,7 @@ class BrainboxDashboard(App[None]):
             yield Status(icon="󰽒", total=2, show_pb=False, id="footswitch")
             yield Status(icon="", total=2, show_pb=False, id="tablet")
             yield Status(icon="", total=2, show_pb=False, id="laptop")
+            yield Status(icon="󰭙", total=2, show_pb=False, id="intruder")
             yield Static(id="spacer")
             with InlineButton(id="btn_volume"):
                 yield VolumeControl(
@@ -94,21 +95,21 @@ class BrainboxDashboard(App[None]):
         mod_host.update(self.telemetry.mod_service_status("modep-mod-host"))
         mod_ui: Status = self.query_one("#mod_ui", Status)
         mod_ui.update(self.telemetry.mod_service_status("modep-mod-ui"))
+        connected_hosts: list[str] = self.telemetry.connected_hosts()
         footswitch: Status = self.query_one("#footswitch", Status)
-        status_footswitch: bool = self.telemetry.device_status(
-            self.telemetry.MAC_FOOTSWITCH
+        status_footswitch: bool = (
+            self.telemetry.HOSTNAME_FOOTSWITCH in connected_hosts
         )
         footswitch.update(status_footswitch)
         tablet: Status = self.query_one("#tablet", Status)
-        status_tablet: bool = self.telemetry.device_status(
-            self.telemetry.MAC_TABLET
-        )
+        status_tablet: bool = self.telemetry.HOSTNAME_TABLET in connected_hosts
         tablet.update(status_tablet)
         laptop: Status = self.query_one("#laptop", Status)
-        status_laptop: bool = self.telemetry.device_status(
-            self.telemetry.MAC_LAPTOP
-        )
+        status_laptop: bool = self.telemetry.HOSTNAME_LAPTOP in connected_hosts
         laptop.update(status_laptop)
+        intruder: Status = self.query_one("#intruder", Status)
+        status_intruder: bool = not len(connected_hosts) > 3
+        intruder.update(status_intruder)
         volume: VolumeControl = self.query_one("#volume_control", VolumeControl)
         volume.volume = self.telemetry.get_volume()
         snapshot: Static = self.query_one("#snapshot", Static)

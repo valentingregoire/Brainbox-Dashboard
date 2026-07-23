@@ -1,4 +1,3 @@
-import json
 import subprocess
 from pathlib import Path
 
@@ -9,10 +8,10 @@ import psutil
 class Telemetry:
     """A class that can fetch information about the system."""
 
-    MAC_FOOTSWITCH: str = "a4:97:33:7e:ff:d4"
-    MAC_TABLET: str = "c8:b2:9b:b5:4a:c8"
-    MAC_LAPTOP: str = "88:a2:9e:0c:46:76"
     BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
+    HOSTNAME_FOOTSWITCH: str = "esp32c3-0472A8"
+    HOSTNAME_TABLET: str = "tablet"
+    HOSTNAME_LAPTOP: str = "valentin-laptop"
 
     def __init__(self) -> None:
         self.max_volume: int = self._max_volume()
@@ -76,13 +75,12 @@ class Telemetry:
             return 1
         return 0
 
-    def device_status(self, mac: str) -> bool:
-        status = self._cmd("ip -j neigh")
-        devices: list[dict[str, str | list[str]]] = json.loads(status)
-        for device in devices:
-            if device["lladdr"] == mac:
-                return "REACHABLE" in device["state"]
-        return False
+    def connected_hosts(self) -> list[str]:
+        """Gets the connected devices to the hotspot."""
+        devices = self._cmd(
+            "cat /var/lib/NetworkManager/dnsmasq-wlan0.leases | awk '{print $4}'"
+        ).split("\n")
+        return devices
 
     def _snapshot_map(self) -> dict[str, str]:
         """Gets the snapshot numbers and their corresponding names."""
