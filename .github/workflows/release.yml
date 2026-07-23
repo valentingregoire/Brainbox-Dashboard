@@ -1,9 +1,5 @@
 name: Release
-on:
-  push
-  # push:
-  #   tags:
-  #     - "v*"
+on: push
 jobs:
   test_build_release:
     runs-on: ubuntu-latest
@@ -18,14 +14,19 @@ jobs:
       - name: Install
         run: |
           pip install uv
-          uv venv
-          source .venv/bin/activate
-          uv sync --all-groups
+          # uv venv
+          # source .venv/bin/activate
+          # uv sync --all-groups
+          uv sync --no-group dev
+      - name: lint
+        run: uv run ruff check
       - name: Test
-        run: pytest
+        run: uv run pytest
       - name: Build
         run: uv build
       - name: Release
+        # only for release tags
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
