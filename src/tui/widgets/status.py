@@ -9,6 +9,8 @@ from .inline_vertical_progress_bar import InlineVerticalProgressBar
 
 
 class Status(Horizontal):
+    """A widget that can display the status of whatever."""
+
     DEFAULT_CSS: str = f"""
     Status {{
         width: auto;
@@ -24,7 +26,7 @@ class Status(Horizontal):
     Status > Label.nok {{
         color: {CLR_NOK};
     }}
-    """  # ty:ignore[invalid-attribute-override]
+    """
 
     icon: str = ""
     progress: reactive[int | float | bool] = reactive(0)
@@ -56,6 +58,7 @@ class Status(Horizontal):
             yield Label(id="label")
 
     def update(self, progress: int | float) -> None:
+        """Updates the status based on the progress."""
         self.progress = progress
         icon: Label = self.query_one("#icon", Label)
         _ = icon.remove_class("ok")

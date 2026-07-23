@@ -7,6 +7,8 @@ from . import CLR_OK, CLR_TEXT_OK, CLR_TEXT_WARN, CLR_WARN
 
 
 class LED(Widget):
+    """Represents an LED with 3 states."""
+
     DEFAULT_CSS: str = f"""
         LED {{
             width: 7;
@@ -27,7 +29,7 @@ class LED(Widget):
             background: {CLR_WARN};
             color: {CLR_TEXT_WARN};
         }}
-    """  # ty:ignore[invalid-attribute-override]
+    """
 
     status: reactive[int] = reactive(0)
 
@@ -44,6 +46,7 @@ class LED(Widget):
         return ""
 
     def update(self, status: int):
+        """Updates the LED based on the status."""
         self.status = status
         _ = self.remove_class("status-0")
         _ = self.remove_class("status-1")

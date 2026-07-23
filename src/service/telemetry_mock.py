@@ -4,7 +4,10 @@ from service.telemetry import Telemetry
 
 
 class TelemetryMock(Telemetry):
+    """A mock version of the Telemetry class. Can be used in unit testing, or for development."""
+
     current_volume: int = 107
+    current_snapshot_name: str = "three"
 
     @override
     def cpu_temp(self) -> float:
@@ -51,7 +54,7 @@ class TelemetryMock(Telemetry):
         return 2
 
     @override
-    def snapshot_map(self) -> dict[str, str]:
+    def _snapshot_map(self) -> dict[str, str]:
         return {
             "0": "zero",
             "1": "one",
@@ -65,7 +68,7 @@ class TelemetryMock(Telemetry):
 
     @override
     def snapshot_name(self) -> str:
-        return "three"
+        return self.current_snapshot_name
 
     @override
     def device_status(self, mac: str) -> bool:

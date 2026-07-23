@@ -6,6 +6,8 @@ from typing_extensions import override
 
 
 class VolumeChanged(Message):
+    """A message that can be fired if the volume got changed."""
+
     def __init__(self, new_volume: int, old_volume: int) -> None:
         super().__init__()
         self.new_volume: int = new_volume
@@ -13,6 +15,8 @@ class VolumeChanged(Message):
 
 
 class VolumeControl(Widget):
+    """A widget that shows the volume."""
+
     DEFAULT_CSS: str = """
     VolumeControl {
         width: 3;
@@ -20,14 +24,16 @@ class VolumeControl(Widget):
         # margin-right: 3;
         text-align: center;
     }
-    """  # ty:ignore[invalid-attribute-override]
+    """
 
     max: int
     volume: reactive[int] = reactive(0)
 
-    def __init__(self, max: int, id: str | None = None) -> None:
+    def __init__(
+        self, volume: int = 0, max: int = 100, id: str | None = None
+    ) -> None:
         super().__init__(id=id)
-        self.volume = 0
+        self.volume = volume
         self.max = max
 
     @override

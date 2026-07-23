@@ -7,6 +7,8 @@ import psutil
 
 
 class Telemetry:
+    """A class that can fetch information about the system."""
+
     MAC_FOOTSWITCH: str = "a4:97:33:7e:ff:d4"
     MAC_TABLET: str = "c8:b2:9b:b5:4a:c8"
     MAC_LAPTOP: str = "88:a2:9e:0c:46:76"
@@ -14,6 +16,7 @@ class Telemetry:
 
     def __init__(self) -> None:
         self.max_volume: int = self._max_volume()
+        self.snapshot_map: dict[str, str] = self._snapshot_map()
 
     def cpu_temp(self) -> float:
         """Reads the temperature and returns it as a float with 1 decimal."""
@@ -81,7 +84,7 @@ class Telemetry:
                 return "REACHABLE" in device["state"]
         return False
 
-    def snapshot_map(self) -> dict[str, str]:
+    def _snapshot_map(self) -> dict[str, str]:
         """Gets the snapshot numbers and their corresponding names."""
         response = httpx.get(f"{self.BASE_ADDRESS}/snapshot/list")
         if response.is_success:
@@ -95,12 +98,10 @@ class Telemetry:
             return response.text
         return "Error"
 
-    def snapshot_id(
-        self, snapshot_name: str, snapshot_map: dict[str, str]
-    ) -> str:
+    def snapshot_id(self, snapshot_name: str) -> str:
         """Gets the id of the current snapshot."""
         return next(
-            (k for k, v in snapshot_map.items() if v == snapshot_name), "0"
+            (k for k, v in self.snapshot_map.items() if v == snapshot_name), "0"
         )
 
     def _cmd(self, cmd: list[str] | str) -> str:

@@ -7,6 +7,8 @@ from . import CLR_NOK, CLR_OK, CLR_WARN
 
 
 class InlineVerticalProgressBar(Static):
+    """A simple vertical progress bar of 1 height."""
+
     _1_8: str = "▁"
     _2_8: str = "▂"
     _3_8: str = "▃"
@@ -32,7 +34,7 @@ class InlineVerticalProgressBar(Static):
     InlineVerticalProgressBar.nok {{
         color: {CLR_NOK}
     }}
-    """  # ty:ignore[invalid-attribute-override]
+    """
 
     progress: reactive[float] = reactive(0)
     total: reactive[float] = reactive(1)

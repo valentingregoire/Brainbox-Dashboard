@@ -1,6 +1,7 @@
 from art import text2art
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
+from textual.events import Click
 from textual.widgets import Static
 from typing_extensions import override
 
@@ -14,8 +15,7 @@ from tui.widgets.volume_control import VolumeChanged, VolumeControl
 
 
 class BrainboxDashboard(App[None]):
-    # CSS_PATH: str = "main.tcss"
-    DEFAULT_CSS: str = """  # pyright: ignore[reportIncompatibleVariableOverride]
+    DEFAULT_CSS: str = """
         #spacer {
             width: 1fr;
         }
@@ -30,29 +30,9 @@ class BrainboxDashboard(App[None]):
         #buttons {
             align: center middle;
         }
-    """  # ty:ignore[invalid-attribute-override]
+    """
 
     telemetry: Telemetry
-    snapshot_map: dict[str, str]
-    temp: Status = Status(icon="")
-    cpu: Status = Status(icon="")
-    ram: Status = Status(icon="")
-    fan: Status = Status(icon="󰈐", total=0)
-    mod_host: Status = Status(icon="󰇅", boolean=True)
-    mod_ui: Status = Status(icon="", boolean=True)
-    footswitch: Status = Status(icon="󰽒", total=2, show_pb=False)
-    tablet: Status = Status(icon="", total=2, show_pb=False)
-    laptop: Status = Status(icon="", total=2, show_pb=False)
-    # volume: Status = Status(icon="", total=MAX_VOLUME)
-    volume: VolumeControl = VolumeControl(0, id="volume_control")
-    close_btn: InlineButton = InlineButton("", id="btn_close")
-    snapshot: Static = Static(id="snapshot")
-    leds: list[LED] = [
-        LED(id="led1", classes="status-0"),
-        LED(id="led2"),
-        LED(id="led3"),
-        LED(id="led4"),
-    ]
 
     def __init__(self) -> None:
         super().__init__()
@@ -60,91 +40,116 @@ class BrainboxDashboard(App[None]):
             self.telemetry = TelemetryMock()
         else:
             self.telemetry = Telemetry()
-        self.volume.volume = self.telemetry.get_volume()
-        self.volume.max = self.telemetry.max_volume
-        self.fan.progress = self.telemetry.fan_speed()
-        self.fan.total = self.telemetry.max_fan_speed()
-        self.snapshot_map = self.telemetry.snapshot_map()
 
     @override
     def compose(self) -> ComposeResult:
         with Horizontal(id="status-bar"):
-            yield self.temp
-            yield self.cpu
-            yield self.ram
-            yield self.fan
-            yield self.mod_host
-            yield self.mod_ui
-            yield self.footswitch
-            yield self.tablet
-            yield self.laptop
+            yield Status(icon="", id="temp")
+            yield Status(icon="", id="cpu")
+            yield Status(icon="", id="ram")
+            yield Status(
+                icon="󰈐",
+                progress=self.telemetry.fan_speed(),
+                total=self.telemetry.max_fan_speed(),
+                id="fan",
+            )
+            yield Status(icon="󰇅", boolean=True, id="mod_host")
+            yield Status(icon="", boolean=True, id="mod_ui")
+            yield Status(icon="󰽒", total=2, show_pb=False, id="footswitch")
+            yield Status(icon="", total=2, show_pb=False, id="tablet")
+            yield Status(icon="", total=2, show_pb=False, id="laptop")
             yield Static(id="spacer")
             with InlineButton(id="btn_volume"):
-                yield self.volume
-            yield self.close_btn
-        yield self.snapshot
+                yield VolumeControl(
+                    self.telemetry.get_volume(),
+                    self.telemetry.max_volume,
+                    id="volume_control",
+                )
+            yield InlineButton("", id="btn_close")
+        yield Static(id="snapshot")
         with Horizontal(id="buttons"):
-            for led in self.leds:
-                yield led
+            yield LED(id="led1", classes="status-0")
+            yield LED(id="led2")
+            yield LED(id="led3")
+            yield LED(id="led4")
 
     def on_mount(self) -> None:
         _ = self.set_interval(0.5, self.update_values)
 
     def update_values(self) -> None:
-        cpu_load = self.telemetry.cpu_load()
-        self.cpu.update(progress=cpu_load)
-        ram_load = self.telemetry.memory_load()
-        self.ram.update(progress=ram_load)
-        temperature = self.telemetry.cpu_temp()
-        self.temp.update(progress=temperature)
-        fan_speed = self.telemetry.fan_speed()
-        self.fan.update(progress=fan_speed)
-        self.mod_host.update(
-            self.telemetry.mod_service_status("modep-mod-host")
-        )
-        self.mod_ui.update(self.telemetry.mod_service_status("modep-mod-ui"))
+        """Polls the telemetry service and updates the interface accordingly."""
+        cpu: Status = self.query_one("#cpu", Status)
+        cpu_load: float = self.telemetry.cpu_load()
+        cpu.update(progress=cpu_load)
+        ram: Status = self.query_one("#ram", Status)
+        ram_load: float = self.telemetry.memory_load()
+        ram.update(progress=ram_load)
+        temp: Status = self.query_one("#temp", Status)
+        temperature: float = self.telemetry.cpu_temp()
+        temp.update(progress=temperature)
+        fan: Status = self.query_one("#fan", Status)
+        fan_speed: float = self.telemetry.fan_speed()
+        fan.update(progress=fan_speed)
+        mod_host: Status = self.query_one("#mod_host", Status)
+        mod_host.update(self.telemetry.mod_service_status("modep-mod-host"))
+        mod_ui: Status = self.query_one("#mod_ui", Status)
+        mod_ui.update(self.telemetry.mod_service_status("modep-mod-ui"))
+        footswitch: Status = self.query_one("#footswitch", Status)
         status_footswitch: bool = self.telemetry.device_status(
             self.telemetry.MAC_FOOTSWITCH
         )
+        footswitch.update(status_footswitch)
+        tablet: Status = self.query_one("#tablet", Status)
         status_tablet: bool = self.telemetry.device_status(
             self.telemetry.MAC_TABLET
         )
+        tablet.update(status_tablet)
+        laptop: Status = self.query_one("#laptop", Status)
         status_laptop: bool = self.telemetry.device_status(
             self.telemetry.MAC_LAPTOP
         )
-        self.footswitch.update(status_footswitch)
-        self.tablet.update(status_tablet)
-        self.laptop.update(status_laptop)
-        self.volume.volume = self.telemetry.get_volume()
+        laptop.update(status_laptop)
+        volume: VolumeControl = self.query_one("#volume_control", VolumeControl)
+        volume.volume = self.telemetry.get_volume()
+        snapshot: Static = self.query_one("#snapshot", Static)
         snapshot_name: str = self.telemetry.snapshot_name()
-        self.snapshot.update(str(text2art(snapshot_name, font="big")))
-        snapshot_id: int = int(
-            self.telemetry.snapshot_id(snapshot_name, self.snapshot_map)
-        )
-        current_led_id = snapshot_id % len(self.leds)
-        for i, led in enumerate(self.leds):
+        snapshot.update(str(text2art(snapshot_name, font="big")))
+        snapshot_id: int = int(self.telemetry.snapshot_id(snapshot_name))
+        leds: list[LED] = [
+            self.query_one("#led1", LED),
+            self.query_one("#led2", LED),
+            self.query_one("#led3", LED),
+            self.query_one("#led4", LED),
+        ]
+        current_led_id = snapshot_id % len(leds)
+        for i, led in enumerate(leds):
             if i == current_led_id:
-                led.update((snapshot_id // len(self.leds)) + 1)
+                led.update((snapshot_id // len(leds)) + 1)
             else:
                 led.update(0)
 
-    async def on_inline_button_clicked(
-        self, message: InlineButton.Clicked
-    ) -> None:  # noqa: F811
-        if message.initiator == "btn_close":
-            self.exit(message="I quit!")
-        elif message.initiator == "btn_volume":
-            _ = await self.push_screen(
-                SoundScreen(self.telemetry),
-                # lambda volume: setattr(self.volume, "volume", volume),
-            )
+    async def on_click(self, message: Click) -> None:  # noqa: F811
+        """Handles the clicks on inline buttons."""
+        self.log("click")
+        if message.widget:
+            self.log(message.widget.id)
+            if message.widget.id == "btn_close":
+                self.exit(return_code=-1)
+            elif message.widget.id in ["btn_volume", "volume_control"]:
+                _ = await self.push_screen(
+                    SoundScreen(self.telemetry, id="sound_screen"),
+                    # lambda volume: setattr(self.volume, "volume", volume),
+                )
 
     async def on_volume_changed(self, message: VolumeChanged):
-        self.volume.volume = message.new_volume
+        """Handles the volume changes from the sound screen, and updates the volume control in the status bar."""
+        volume: VolumeControl = self.query_one("#volume_control", VolumeControl)
+        volume.volume = message.new_volume
         _ = self.telemetry.set_volume(message.new_volume)
 
 
 def run() -> None:
+    """Run, Forest, run!"""
     app = BrainboxDashboard()
     app.run()
 

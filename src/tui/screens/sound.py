@@ -14,6 +14,8 @@ from tui.widgets.volume_control import VolumeChanged
 
 
 class SoundScreen(ModalScreen[int]):
+    """Little modal screen to adjust the master volume."""
+
     telemetry: Telemetry
     volume: reactive[int] = reactive(0)
     volume_max: int = 0
@@ -48,7 +50,7 @@ class SoundScreen(ModalScreen[int]):
             height: 1;
             text-align: center;
         }
-    """  # ty:ignore[invalid-attribute-override]
+    """
 
     def __init__(self, telemetry: Telemetry, id: str | None = None) -> None:
         super().__init__(id=id)
@@ -71,6 +73,7 @@ class SoundScreen(ModalScreen[int]):
             yield Static(self.volume_str, id="label")
 
     def compute_volume_str(self) -> str:
+        """Computes the volume percentage and returns it as a string."""
         if self.volume_max:
             try:
                 percent: int = round(self.volume / self.volume_max * 100)
@@ -81,22 +84,24 @@ class SoundScreen(ModalScreen[int]):
                 return ""
         return ""
 
-    def on_inline_button_clicked(self, message: InlineButton.Clicked) -> None:
-        slider: Slider = self.query_one("#slider", Slider)
-        old_volume: int = self.volume
-        if message.initiator == "vol_min":
-            self.volume -= int(self.volume_max / 20)
-        else:
-            self.volume += int(self.volume_max / 20)
-        slider.value = self.volume
-        _ = message.stop()
-        _ = self.post_message(VolumeChanged(self.volume, old_volume))
-
     def on_click(self, event: Click) -> None:
-        if event.widget == self:
-            _ = self.dismiss(self.volume)
+        """Handles the click events."""
+        if event.widget:
+            if event.widget == self:
+                _ = self.dismiss(self.volume)
+            else:
+                slider: Slider = self.query_one("#slider", Slider)
+                old_volume: int = self.volume
+                if event.widget.id == "vol_min":
+                    self.volume -= int(self.volume_max / 20)
+                else:
+                    self.volume += int(self.volume_max / 20)
+                slider.value = self.volume
+                _ = event.stop()
+                _ = self.post_message(VolumeChanged(self.volume, old_volume))
 
     def on_slider_changed(self, message: Slider.Changed) -> None:
+        """Handles the changes of the slider."""
         old_volume: int = self.volume
         self.volume = message.value
         _ = self.post_message(VolumeChanged(self.volume, old_volume))
