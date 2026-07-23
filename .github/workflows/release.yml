@@ -21,7 +21,7 @@ jobs:
       - name: Lint
         run: uv run ruff check
       - name: Type Check
-        run: uv run ty
+        run: uv run ty check
       - name: Test
         run: uv run pytest
       - name: Build
