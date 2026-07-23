@@ -54,7 +54,7 @@ class TestStatusBar:
 
     async def test_update_values(self) -> None:
         app = BrainboxDashboard()
-        async with app.run_test() as pilot:
+        async with app.run_test() as _:
             app.update_values()
             assert (
                 app.query_one("#cpu", Status).progress == telemetry.cpu_load()

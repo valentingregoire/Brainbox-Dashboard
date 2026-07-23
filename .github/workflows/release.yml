@@ -18,8 +18,10 @@ jobs:
           # source .venv/bin/activate
           # uv sync --all-groups
           uv sync --no-group dev
-      - name: lint
+      - name: Lint
         run: uv run ruff check
+      - name: Type Check
+        run: uv run ty
       - name: Test
         run: uv run pytest
       - name: Build
