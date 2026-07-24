@@ -54,12 +54,14 @@ class TelemetryMock(Telemetry):
         return 2
 
     @override
-    def connected_hosts(self) -> list[str]:
+    def connected_hosts(self) -> list[Telemetry.DeviceConnection]:
         return [
-            self.HOSTNAME_FOOTSWITCH,
-            self.HOSTNAME_LAPTOP,
-            self.HOSTNAME_TABLET,
-            "intruder",
+            self.DeviceConnection(
+                self.HOSTNAME_FOOTSWITCH, "192.168.0.2", True
+            ),
+            self.DeviceConnection(self.HOSTNAME_LAPTOP, "192.168.0.3", True),
+            self.DeviceConnection(self.HOSTNAME_TABLET, "192.168.0.4", True),
+            self.DeviceConnection("intruder", "192.168.0.5", True),
         ]
 
     @override

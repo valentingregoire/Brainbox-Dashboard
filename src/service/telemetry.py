@@ -12,6 +12,19 @@ class Telemetry:
     HOSTNAME_FOOTSWITCH: str = "esp32c3-0472A8"
     HOSTNAME_TABLET: str = "tablet"
     HOSTNAME_LAPTOP: str = "valentin-laptop"
+    HOSTNAMES: list[str] = [
+        HOSTNAME_FOOTSWITCH,
+        HOSTNAME_TABLET,
+        HOSTNAME_LAPTOP,
+    ]
+
+    class DeviceConnection:
+        """A simple class that represents the connection status of a device."""
+
+        def __init__(self, hostname: str, ip: str, active: bool) -> None:
+            self.hostname: str = hostname
+            self.ip: str = ip
+            self.active: bool = active
 
     def __init__(self) -> None:
         self.max_volume: int = self._max_volume()
@@ -75,12 +88,33 @@ class Telemetry:
             return 1
         return 0
 
-    def connected_hosts(self) -> list[str]:
+    def connected_hosts(self) -> list[DeviceConnection]:
         """Gets the connected devices to the hotspot."""
         devices = self._cmd(
-            "cat /var/lib/NetworkManager/dnsmasq-wlan0.leases | awk '{print $4}'"
+            "cat /var/lib/NetworkManager/dnsmasq-wlan0.leases | awk '{print $3,$4}'"
         ).split("\n")
-        return devices
+        connections: list[Telemetry.DeviceConnection] = []
+        for device in devices:
+            ip_hostname: list[str] = device.split(" ")
+            dc = self.DeviceConnection(
+                ip_hostname[1],
+                ip_hostname[0],
+                self.host_connected(ip_hostname[0]),
+            )
+            connections.append(dc)
+        return connections
+
+    def is_device_connected(
+        self, ip: str, device_connections: list[DeviceConnection]
+    ) -> bool:
+        """Checks if an ip is actively connected."""
+        dc = any(dc for dc in device_connections if dc.ip == ip and dc.active)
+        return dc
+
+    def host_connected(self, ip: str) -> bool:
+        """Checks if the current ip is connected or not."""
+        connected_str = self._cmd(f"ping -c1 -W1 {ip} | tail -2")
+        return "1 received" in connected_str
 
     def _snapshot_map(self) -> dict[str, str]:
         """Gets the snapshot numbers and their corresponding names."""

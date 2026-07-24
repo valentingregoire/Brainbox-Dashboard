@@ -75,10 +75,6 @@ class TestStatusBar:
             assert app.query_one(
                 "#mod_ui", Status
             ).progress == telemetry.mod_service_status("modep-mod-ui")
-            assert app.query_one("#footswitch", Status).progress
-            assert app.query_one("#tablet", Status).progress
-            assert app.query_one("#laptop", Status).progress
-            assert not app.query_one("#intruder", Status).progress
             assert (
                 app.query_one("#volume_control", VolumeControl).volume
                 == telemetry.get_volume()
@@ -92,3 +88,12 @@ class TestStatusBar:
             assert "status-0" not in app.query_one("#led4", LED).classes
             assert "status-1" not in app.query_one("#led4", LED).classes
             assert "status-2" in app.query_one("#led4", LED).classes
+
+    async def test_update_connections(self) -> None:
+        app = BrainboxDashboard()
+        async with app.run_test() as _:
+            app.update_connections()
+            assert app.query_one("#footswitch", Status).progress
+            assert app.query_one("#tablet", Status).progress
+            assert app.query_one("#laptop", Status).progress
+            assert not app.query_one("#intruder", Status).progress

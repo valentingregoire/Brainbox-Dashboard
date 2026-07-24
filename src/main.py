@@ -76,6 +76,7 @@ class BrainboxDashboard(App[None]):
 
     def on_mount(self) -> None:
         _ = self.set_interval(0.5, self.update_values)
+        _ = self.set_interval(2, self.update_connections)
 
     def update_values(self) -> None:
         """Polls the telemetry service and updates the interface accordingly."""
@@ -95,21 +96,6 @@ class BrainboxDashboard(App[None]):
         mod_host.update(self.telemetry.mod_service_status("modep-mod-host"))
         mod_ui: Status = self.query_one("#mod_ui", Status)
         mod_ui.update(self.telemetry.mod_service_status("modep-mod-ui"))
-        connected_hosts: list[str] = self.telemetry.connected_hosts()
-        footswitch: Status = self.query_one("#footswitch", Status)
-        status_footswitch: bool = (
-            self.telemetry.HOSTNAME_FOOTSWITCH in connected_hosts
-        )
-        footswitch.update(status_footswitch)
-        tablet: Status = self.query_one("#tablet", Status)
-        status_tablet: bool = self.telemetry.HOSTNAME_TABLET in connected_hosts
-        tablet.update(status_tablet)
-        laptop: Status = self.query_one("#laptop", Status)
-        status_laptop: bool = self.telemetry.HOSTNAME_LAPTOP in connected_hosts
-        laptop.update(status_laptop)
-        intruder: Status = self.query_one("#intruder", Status)
-        status_intruder: bool = not len(connected_hosts) > 3
-        intruder.update(status_intruder)
         volume: VolumeControl = self.query_one("#volume_control", VolumeControl)
         volume.volume = self.telemetry.get_volume()
         snapshot: Static = self.query_one("#snapshot", Static)
@@ -128,6 +114,41 @@ class BrainboxDashboard(App[None]):
                 led.update((snapshot_id // len(leds)) + 1)
             else:
                 led.update(0)
+
+    def update_connections(self) -> None:
+        """Updates the connected devices status."""
+        connected_hosts: list[Telemetry.DeviceConnection] = (
+            self.telemetry.connected_hosts()
+        )
+        footswitch: Status = self.query_one("#footswitch", Status)
+        footswitch_status = any(
+            ch
+            for ch in connected_hosts
+            if ch.hostname == self.telemetry.HOSTNAME_FOOTSWITCH and ch.active
+        )
+        footswitch.update(footswitch_status)
+        tablet: Status = self.query_one("#tablet", Status)
+        tablet_status = any(
+            ch
+            for ch in connected_hosts
+            if ch.hostname == self.telemetry.HOSTNAME_TABLET and ch.active
+        )
+        tablet.update(tablet_status)
+        laptop: Status = self.query_one("#laptop", Status)
+        laptop_status = any(
+            ch
+            for ch in connected_hosts
+            if ch.hostname == self.telemetry.HOSTNAME_LAPTOP and ch.active
+        )
+        laptop.update(laptop_status)
+        intruder: Status = self.query_one("#intruder", Status)
+        # we negate the result, because True means it's ok, no intruder is found.
+        status_intruder: bool = not any(
+            ch
+            for ch in connected_hosts
+            if ch.hostname not in self.telemetry.HOSTNAMES and ch.active
+        )
+        intruder.update(status_intruder)
 
     async def on_click(self, message: Click) -> None:  # noqa: F811
         """Handles the clicks on inline buttons."""
