@@ -15,6 +15,7 @@ class Status(Horizontal):
     Status {{
         width: auto;
         height: 1;
+        margin-left: 2;
         margin-right: 2;
     }}
     Status > Label.ok {{
@@ -33,14 +34,16 @@ class Status(Horizontal):
     total: reactive[int | float] = reactive(100)
     boolean: bool = False
     show_pb: bool = True
+    info: str | None = None
 
     def __init__(
         self,
         icon: str = "",
-        progress: int | float | bool = 0,
-        total: int | float = 100,
+        progress: float | bool = 0,
+        total: float = 100,
         boolean: bool = False,
         show_pb: bool = True,
+        info: str | None = None,
         id: str | None = None,
     ) -> None:
         super().__init__(id=id)
@@ -49,6 +52,7 @@ class Status(Horizontal):
         self.total = total
         self.boolean = boolean
         self.show_pb = show_pb
+        self.info = info
 
     @override
     def compose(self) -> ComposeResult:
@@ -56,10 +60,12 @@ class Status(Horizontal):
         if not self.boolean and self.show_pb:
             yield InlineVerticalProgressBar(self.progress, self.total, id="pb")
             yield Label(id="label")
+        yield Label(id="info")
 
-    def update(self, progress: int | float | bool) -> None:
+    def update(self, progress: float | bool, info: str | None = None) -> None:
         """Updates the status based on the progress."""
         self.progress = progress
+        self.info = info
         icon: Label = self.query_one("#icon", Label)
         _ = icon.remove_class("ok")
         _ = icon.remove_class("nok")
@@ -84,3 +90,6 @@ class Status(Horizontal):
                 _ = icon.add_class("ok")
             else:
                 _ = icon.add_class("nok")
+        if self.info:
+            info: Label = self.query_one("#info", Label)
+            info.update(self.info)

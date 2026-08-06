@@ -21,10 +21,13 @@ class Telemetry:
     class DeviceConnection:
         """A simple class that represents the connection status of a device."""
 
-        def __init__(self, hostname: str, ip: str, active: bool) -> None:
+        def __init__(
+            self, hostname: str, ip: str, active: bool, ms: int
+        ) -> None:
             self.hostname: str = hostname
             self.ip: str = ip
             self.active: bool = active
+            self.ms: int = ms
 
     def __init__(self) -> None:
         self.max_volume: int = self._max_volume()
@@ -75,7 +78,7 @@ class Telemetry:
 
     def set_volume(self, volume: int) -> bool:
         result = self._cmd(
-            f"amixer -c 2 cset name='Digital Playback Volume' {str(volume)} | grep -oP 'values=\\K[0-9]+' | tail -1"
+            f"amixer -c 2 cset name='Digital Playback Volume' {volume!s} | grep -oP 'values=\\K[0-9]+' | tail -1"
         )
         return int(result) == volume
 
@@ -96,10 +99,14 @@ class Telemetry:
         connections: list[Telemetry.DeviceConnection] = []
         for device in devices:
             ip_hostname: list[str] = device.split(" ")
+            connection_status: tuple[bool, int] = self.host_connected(
+                ip_hostname[0]
+            )
             dc = self.DeviceConnection(
                 ip_hostname[1],
                 ip_hostname[0],
-                self.host_connected(ip_hostname[0]),
+                connection_status[0],
+                connection_status[1],
             )
             connections.append(dc)
         return connections
@@ -111,10 +118,17 @@ class Telemetry:
         dc = any(dc for dc in device_connections if dc.ip == ip and dc.active)
         return dc
 
-    def host_connected(self, ip: str) -> bool:
+    def host_connected(self, ip: str) -> tuple[bool, int]:
         """Checks if the current ip is connected or not."""
         connected_str = self._cmd(f"ping -c1 -W1 {ip} | tail -2")
-        return "1 received" in connected_str
+        received: bool = "1 received" in connected_str
+        ms: int = -1
+        if received:
+            # get the average ping time
+            ms = round(
+                float(connected_str.split("\n")[1].split("=")[1].split("/")[1])
+            )
+        return received, ms
 
     def _snapshot_map(self) -> dict[str, str]:
         """Gets the snapshot numbers and their corresponding names."""

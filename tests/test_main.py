@@ -43,16 +43,16 @@ class TestStatusBar:
             self.close_message = message
 
     async def test_close_btn(self) -> None:
+        """Tests clicking the close button."""
         app = self.MockApp()
         async with app.run_test() as pilot:
             _ = await pilot.click("#btn_close")
-            # print(f"return: {app.return_value}")
             app.log(f"return: {app.return_value}")
             assert app.close_message is not None
             assert app.return_code == -1
-            # assert app.return_value == "I quit!"
 
     async def test_update_values(self) -> None:
+        """Tests updating the values."""
         app = BrainboxDashboard()
         async with app.run_test() as _:
             app.update_values()
@@ -90,6 +90,7 @@ class TestStatusBar:
             assert "status-2" in app.query_one("#led4", LED).classes
 
     async def test_update_connections(self) -> None:
+        """Tests the connected devices."""
         app = BrainboxDashboard()
         async with app.run_test() as _:
             app.update_connections()

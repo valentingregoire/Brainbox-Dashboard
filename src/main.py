@@ -10,6 +10,7 @@ from service.telemetry_mock import TelemetryMock
 from tui.screens.sound import SoundScreen
 from tui.widgets.inline_button import InlineButton
 from tui.widgets.led import LED
+from tui.widgets.separator import Separator
 from tui.widgets.status import Status
 from tui.widgets.volume_control import VolumeChanged, VolumeControl
 
@@ -53,11 +54,13 @@ class BrainboxDashboard(App[None]):
                 total=self.telemetry.max_fan_speed(),
                 id="fan",
             )
+            yield Separator()
             yield Status(icon="󰇅", boolean=True, id="mod_host")
             yield Status(icon="", boolean=True, id="mod_ui")
+            yield Separator()
             yield Status(icon="󰽒", total=2, show_pb=False, id="footswitch")
-            yield Status(icon="", total=2, show_pb=False, id="tablet")
-            yield Status(icon="", total=2, show_pb=False, id="laptop")
+            yield Status(icon=" ", total=2, show_pb=False, id="tablet")
+            yield Status(icon=" ", total=2, show_pb=False, id="laptop")
             yield Status(icon="󰭙", total=2, show_pb=False, id="intruder")
             yield Static(id="spacer")
             with InlineButton(id="btn_volume"):
@@ -121,26 +124,37 @@ class BrainboxDashboard(App[None]):
             self.telemetry.connected_hosts()
         )
         footswitch: Status = self.query_one("#footswitch", Status)
-        footswitch_status = any(
+        footswitch_status = next(
             ch
             for ch in connected_hosts
-            if ch.hostname == self.telemetry.HOSTNAME_FOOTSWITCH and ch.active
+            if ch.hostname == self.telemetry.HOSTNAME_FOOTSWITCH
         )
-        footswitch.update(footswitch_status)
+        if footswitch_status:
+            footswitch.update(
+                footswitch_status.active, str(footswitch_status.ms)
+            )
+        else:
+            footswitch.update(False)
         tablet: Status = self.query_one("#tablet", Status)
-        tablet_status = any(
+        tablet_status = next(
             ch
             for ch in connected_hosts
-            if ch.hostname == self.telemetry.HOSTNAME_TABLET and ch.active
+            if ch.hostname == self.telemetry.HOSTNAME_TABLET
         )
-        tablet.update(tablet_status)
+        if tablet_status:
+            tablet.update(tablet_status.active, str(tablet_status.ms))
+        else:
+            tablet.update(False)
         laptop: Status = self.query_one("#laptop", Status)
-        laptop_status = any(
+        laptop_status = next(
             ch
             for ch in connected_hosts
-            if ch.hostname == self.telemetry.HOSTNAME_LAPTOP and ch.active
+            if ch.hostname == self.telemetry.HOSTNAME_LAPTOP
         )
-        laptop.update(laptop_status)
+        if laptop_status:
+            laptop.update(laptop_status.active, str(laptop_status.ms))
+        else:
+            laptop.update(False)
         intruder: Status = self.query_one("#intruder", Status)
         # we negate the result, because True means it's ok, no intruder is found.
         status_intruder: bool = not any(
@@ -150,7 +164,7 @@ class BrainboxDashboard(App[None]):
         )
         intruder.update(status_intruder)
 
-    async def on_click(self, message: Click) -> None:  # noqa: F811
+    async def on_click(self, message: Click) -> None:
         """Handles the clicks on inline buttons."""
         self.log("click")
         if message.widget:
