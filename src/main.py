@@ -125,9 +125,12 @@ class BrainboxDashboard(App[None]):
         )
         footswitch: Status = self.query_one("#footswitch", Status)
         footswitch_status = next(
-            ch
-            for ch in connected_hosts
-            if ch.hostname == self.telemetry.HOSTNAME_FOOTSWITCH
+            (
+                ch
+                for ch in connected_hosts
+                if ch.hostname == self.telemetry.HOSTNAME_FOOTSWITCH
+            ),
+            None,
         )
         if footswitch_status:
             footswitch.update(
@@ -137,9 +140,12 @@ class BrainboxDashboard(App[None]):
             footswitch.update(False)
         tablet: Status = self.query_one("#tablet", Status)
         tablet_status = next(
-            ch
-            for ch in connected_hosts
-            if ch.hostname == self.telemetry.HOSTNAME_TABLET
+            (
+                ch
+                for ch in connected_hosts
+                if ch.hostname == self.telemetry.HOSTNAME_TABLET
+            ),
+            None,
         )
         if tablet_status:
             tablet.update(tablet_status.active, str(tablet_status.ms))
@@ -147,9 +153,12 @@ class BrainboxDashboard(App[None]):
             tablet.update(False)
         laptop: Status = self.query_one("#laptop", Status)
         laptop_status = next(
-            ch
-            for ch in connected_hosts
-            if ch.hostname == self.telemetry.HOSTNAME_LAPTOP
+            (
+                ch
+                for ch in connected_hosts
+                if ch.hostname == self.telemetry.HOSTNAME_LAPTOP
+            ),
+            None,
         )
         if laptop_status:
             laptop.update(laptop_status.active, str(laptop_status.ms))
