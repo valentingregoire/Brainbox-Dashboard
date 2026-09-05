@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: brainbox-dashboard
+Version: 0.4.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: art>=6.5
+Requires-Dist: httpx>=0.28.1
+Requires-Dist: psutil>=7.2.2
+Requires-Dist: python-nmap>=0.7.1
+Requires-Dist: textual>=8.2.8
+Requires-Dist: textual-slider>=0.2.0
