@@ -12,11 +12,11 @@ class Telemetry:
     HOSTNAME_FOOTSWITCH: str = "esp32c3-0472A8"
     HOSTNAME_TABLET: str = "tablet"
     HOSTNAME_LAPTOP: str = "valentin-laptop"
-    HOSTNAMES: list[str] = [
+    HOSTNAMES: tuple[str, ...] = (
         HOSTNAME_FOOTSWITCH,
         HOSTNAME_TABLET,
         HOSTNAME_LAPTOP,
-    ]
+    )
 
     class DeviceConnection:
         """A simple class that represents the connection status of a device."""
@@ -98,17 +98,18 @@ class Telemetry:
         ).split("\n")
         connections: list[Telemetry.DeviceConnection] = []
         for device in devices:
-            ip_hostname: list[str] = device.split(" ")
-            connection_status: tuple[bool, int] = self.host_connected(
-                ip_hostname[0]
-            )
-            dc = self.DeviceConnection(
-                ip_hostname[1],
-                ip_hostname[0],
-                connection_status[0],
-                connection_status[1],
-            )
-            connections.append(dc)
+            if device:
+                ip_hostname: list[str] = device.split(" ")
+                connection_status: tuple[bool, int] = self.host_connected(
+                    ip_hostname[0]
+                )
+                dc = self.DeviceConnection(
+                    ip_hostname[1],
+                    ip_hostname[0],
+                    connection_status[0],
+                    connection_status[1],
+                )
+                connections.append(dc)
         return connections
 
     def is_device_connected(
@@ -153,9 +154,6 @@ class Telemetry:
     def _cmd(self, cmd: list[str] | str) -> str:
         """Runs a command and returns the result."""
         result = subprocess.run(
-            cmd,
-            shell=True,
-            capture_output=True,
-            text=True,
+            cmd, shell=True, capture_output=True, text=True, check=False
         ).stdout.strip()
         return result

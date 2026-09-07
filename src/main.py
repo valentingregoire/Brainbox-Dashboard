@@ -1,9 +1,10 @@
+from typing import override
+
 from art import text2art
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.events import Click
 from textual.widgets import Static
-from typing_extensions import override
 
 from service.telemetry import Telemetry
 from service.telemetry_mock import TelemetryMock

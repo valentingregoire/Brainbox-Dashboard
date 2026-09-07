@@ -1,6 +1,7 @@
 README.md
 pyproject.toml
 src/__init__.py
+src/bla.py
 src/main.py
 src/brainbox_dashboard.egg-info/PKG-INFO
 src/brainbox_dashboard.egg-info/SOURCES.txt
