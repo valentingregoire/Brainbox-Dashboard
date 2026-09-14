@@ -1,7 +1,8 @@
+from typing import override
+
 from textual.app import RenderResult
 from textual.reactive import reactive
 from textual.widgets import Static
-from typing_extensions import override
 
 from . import CLR_NOK, CLR_OK, CLR_WARN
 
@@ -58,7 +59,6 @@ class InlineVerticalProgressBar(Static):
         _ = self.remove_class("warn")
         _ = self.remove_class("nok")
         progress = self.progress / self.total
-        progress_str = " "
         if progress == 1:
             progress_str = self._8_8
             if self.style:
@@ -91,7 +91,10 @@ class InlineVerticalProgressBar(Static):
             progress_str = self._1_8
             if self.style:
                 _ = self.add_class("ok")
+        elif progress > 0:
+            progress_str = "⎽"
         else:
+            progress_str = " "
             if self.style:
                 _ = self.add_class("ok")
         return progress_str * 2
