@@ -200,5 +200,14 @@ def run() -> None:
     app.run()
 
 
+def run_dev() -> None:
+    """Run, Forest, run!"""
+    import os
+
+    os.environ["TEXTUAL"] = "devtools"
+    app = BrainboxDashboard()
+    app.run()
+
+
 if __name__ == "__main__":
     run()

@@ -1,5 +1,0 @@
-__init__
-bla
-main
-service
-tui

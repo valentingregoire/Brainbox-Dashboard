@@ -1,6 +1,6 @@
 [project]
 name = "brainbox-dashboard"
-version = "0.4.1"
+version = "0.4.2"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -68,3 +68,5 @@ asyncio_mode = "auto"
 
 [project.scripts]
 bbd = "main:run"
+bbd-dev = "main:run_dev"
+
