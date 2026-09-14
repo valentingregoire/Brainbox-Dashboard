@@ -93,6 +93,8 @@ class InlineVerticalProgressBar(Static):
                 _ = self.add_class("ok")
         elif progress > 0:
             progress_str = "⎽"
+            if self.style:
+                _ = self.add_class("ok")
         else:
             progress_str = " "
             if self.style:
