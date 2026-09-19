@@ -9,7 +9,7 @@ class Telemetry:
     """A class that can fetch information about the system."""
 
     BASE_ADDRESS: str = "http://127.0.0.1:8888"  # modep
-    HOSTNAME_FOOTSWITCH: str = "esp32c3-0472A8"
+    HOSTNAME_FOOTSWITCH: str = "esp32c3-045910"
     HOSTNAME_TABLET: str = "tablet"
     HOSTNAME_LAPTOP: str = "valentin-laptop"
     HOSTNAMES: tuple[str, ...] = (
